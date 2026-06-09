@@ -18,6 +18,7 @@ export async function createCattleListing(formData: FormData) {
   const location = formData.get("location") as string;
   const description = formData.get("description") as string;
   const videoUrl = formData.get("videoUrl") as string;
+  const listingId = formData.get("id") as string;
 
   if (!name || !type || !breed || !price || !location) {
     return { error: "Please fill in all required fields." };
@@ -26,7 +27,7 @@ export async function createCattleListing(formData: FormData) {
   try {
     await connectDB();
 
-    await Cattle.create({
+    const data = {
       sellerId: userId,
       name,
       type,
@@ -35,13 +36,85 @@ export async function createCattleListing(formData: FormData) {
       location,
       description,
       videoUrl,
-      isSold: false,
-    });
+    };
+
+    if (listingId) {
+      const existing = await Cattle.findById(listingId);
+      if (!existing || existing.sellerId !== userId) {
+        return { error: "Listing not found or unauthorized." };
+      }
+      await Cattle.findByIdAndUpdate(listingId, data);
+    } else {
+      await Cattle.create({ ...data, isSold: false });
+    }
 
     revalidatePath("/");
+    revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
     console.error("Failed to create listing:", error);
     return { error: "Something went wrong. Please try again." };
+  }
+}
+
+export async function getCattleListing(id: string) {
+  const { userId } = await auth();
+  if (!userId) return null;
+
+  try {
+    await connectDB();
+    const listing = await Cattle.findById(id).lean();
+    if (!listing || listing.sellerId !== userId) return null;
+    return {
+      _id: listing._id.toString(),
+      name: listing.name,
+      type: listing.type,
+      breed: listing.breed,
+      price: listing.price,
+      location: listing.location,
+      description: listing.description,
+      videoUrl: listing.videoUrl,
+      isSold: listing.isSold,
+      views: listing.views ?? 0,
+      interestCount: listing.interestCount ?? 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteCattleListing(id: string) {
+  const { userId } = await auth();
+  if (!userId) return { error: "Unauthorized" };
+
+  try {
+    await connectDB();
+    const listing = await Cattle.findById(id);
+    if (!listing || listing.sellerId !== userId) {
+      return { error: "Not found or unauthorized" };
+    }
+    await Cattle.findByIdAndDelete(id);
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch {
+    return { error: "Failed to delete listing" };
+  }
+}
+
+export async function toggleSoldStatus(id: string, isSold: boolean) {
+  const { userId } = await auth();
+  if (!userId) return { error: "Unauthorized" };
+
+  try {
+    await connectDB();
+    const listing = await Cattle.findById(id);
+    if (!listing || listing.sellerId !== userId) {
+      return { error: "Not found or unauthorized" };
+    }
+    await Cattle.findByIdAndUpdate(id, { isSold });
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch {
+    return { error: "Failed to update listing" };
   }
 }

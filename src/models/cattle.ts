@@ -11,6 +11,7 @@ export interface CattleCategory {
 
 export interface CattleListing {
   id: string;
+  title?: string;
   category: CattleCategoryName;
   breed: string;
   location: string;
@@ -18,6 +19,15 @@ export interface CattleListing {
   mediaLabel: string;
   statusLabel: string;
   featured: boolean;
+  sellerName?: string;
+  description?: string;
+  age?: string;
+  milkYield?: string;
+  vaccinationStatus?: string;
+  latitude?: number;
+  longitude?: number;
+  views?: number;
+  interestCount?: number;
 }
 
 export interface ICattle extends Document {
@@ -31,6 +41,8 @@ export interface ICattle extends Document {
   videoUrl: string;
   thumbnailUrl: string;
   isSold: boolean;
+  views: number;
+  interestCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,6 +59,8 @@ const CattleSchema = new Schema<ICattle>(
     videoUrl: { type: String },
     thumbnailUrl: { type: String },
     isSold: { type: Boolean, default: false },
+    views: { type: Number, default: 0 },
+    interestCount: { type: Number, default: 0 },
   },
   {
     timestamps: true,
