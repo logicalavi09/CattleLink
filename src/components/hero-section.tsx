@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowRight, BadgeCheck, PlayCircle, ShieldCheck } from "lucide-react";
 
 import { trustHighlights } from "@/constants";
@@ -28,13 +29,13 @@ export function HeroSection() {
             Explore cattle
             <ArrowRight className="h-4 w-4" />
           </a>
-          <a
-            href="#categories"
+          <Link
+            href="/reels"
             className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-earth-200 bg-earth-50 px-5 text-sm font-semibold text-earth-600 transition hover:border-earth-300 hover:bg-earth-100"
           >
             Watch reel-style listings
             <PlayCircle className="h-4 w-4" />
-          </a>
+          </Link>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
