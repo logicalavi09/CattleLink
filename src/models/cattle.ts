@@ -9,6 +9,14 @@ export interface CattleCategory {
   icon: LucideIcon;
 }
 
+export interface Review {
+  id: string;
+  author: string;
+  rating: number;
+  text: string;
+  date: string;
+}
+
 export interface CattleListing {
   id: string;
   title?: string;
@@ -20,14 +28,17 @@ export interface CattleListing {
   statusLabel: string;
   featured: boolean;
   sellerName?: string;
+  sellerRating?: number;
   description?: string;
   age?: string;
   milkYield?: string;
   vaccinationStatus?: string;
   latitude?: number;
   longitude?: number;
+  thumbnailUrl?: string;
   views?: number;
   interestCount?: number;
+  reviews?: Review[];
 }
 
 export interface ICattle extends Document {

@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Navigation } from "lucide-react";
+import { MapPin } from "lucide-react";
 import type { CattleListing } from "@/models/cattle";
 import { haversineDistance, formatDistance } from "@/lib/geo";
 import { formatPrice } from "@/lib/format";

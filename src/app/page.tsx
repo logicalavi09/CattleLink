@@ -4,21 +4,63 @@ import { Navbar } from "@/components/navbar";
 import { CattleListings } from "@/components/cattle-listings";
 import { cattleListings } from "@/constants";
 
+const FILLER_WORDS = new Set([
+  "khoj", "do", "dikhao", "dikhaye", "dikha", "ke", "hain", "hai", "ho",
+  "ko", "ka", "ki", "mein", "me", "se", "par", "pe", "aur", "tha", "the",
+  "ye", "jo", "karo", "kare", "kar", "liye", "wala", "wali", "wale",
+  "ek", "kuch", "sab", "bahut", "tha", "thi", "the", "hoga",
+]);
+
+const CATEGORY_KEYWORDS: Record<string, string> = {
+  gaay: "Cow", gay: "Cow", gai: "Cow", gaye: "Cow", cow: "Cow",
+  "\u0917\u093e\u092f": "Cow",
+  bhains: "Buffalo", bhais: "Buffalo", buffalo: "Buffalo",
+  "\u092d\u0948\u0902\u0938": "Buffalo",
+  bakri: "Goat", bakari: "Goat", goat: "Goat",
+  "\u092c\u0915\u0930\u0940": "Goat",
+  bhed: "Sheep", bhedh: "Sheep", sheep: "Sheep",
+  "\u092d\u0947\u0921\u093c": "Sheep",
+};
+
 function filterListings(
   listings: typeof cattleListings,
   category?: string,
   query?: string,
 ) {
   let filtered = listings;
+  let effectiveCategory = category;
+  let effectiveQuery = query ? query.toLowerCase().trim() : "";
 
-  if (category) {
+  if (effectiveQuery) {
+    const words = effectiveQuery.split(/\s+/).filter(Boolean);
+    const cleaned: string[] = [];
+    let detectedCategory: string | null = null;
+
+    for (const word of words) {
+      if (FILLER_WORDS.has(word)) continue;
+      const mapped = CATEGORY_KEYWORDS[word];
+      if (mapped) {
+        detectedCategory = mapped;
+      } else {
+        cleaned.push(word);
+      }
+    }
+
+    if (detectedCategory) {
+      effectiveCategory = detectedCategory;
+    }
+
+    effectiveQuery = cleaned.join(" ");
+  }
+
+  if (effectiveCategory) {
     filtered = filtered.filter(
-      (l) => l.category.toLowerCase() === category.toLowerCase(),
+      (l) => l.category.toLowerCase() === effectiveCategory!.toLowerCase(),
     );
   }
 
-  if (query) {
-    const q = query.toLowerCase();
+  if (effectiveQuery) {
+    const q = effectiveQuery;
     filtered = filtered.filter(
       (l) =>
         l.breed.toLowerCase().includes(q) ||
@@ -28,7 +70,7 @@ function filterListings(
     );
   }
 
-  return filtered;
+  return { listings: filtered, usedCategory: effectiveCategory, usedQuery: effectiveQuery };
 }
 
 export default async function Home({
@@ -40,7 +82,7 @@ export default async function Home({
   const category = params.category;
   const query = params.query;
 
-  const filtered = filterListings(cattleListings, category, query);
+  const { listings: filtered, usedCategory, usedQuery } = filterListings(cattleListings, category, query);
 
   return (
     <main className="mx-auto min-h-screen max-w-7xl px-4 pb-16 pt-3 sm:px-6 lg:px-8">
@@ -59,13 +101,15 @@ export default async function Home({
               </h2>
             </div>
           </div>
-          <CategoryGrid activeCategory={category} />
+          <CategoryGrid activeCategory={usedCategory || category} />
         </section>
 
         <CattleListings
           listings={filtered}
           query={query}
           category={category}
+          usedCategory={usedCategory}
+          usedQuery={usedQuery}
         />
       </div>
     </main>

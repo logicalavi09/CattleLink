@@ -87,15 +87,15 @@ export default async function DashboardPage() {
             </div>
             <div className="rounded-xl border border-brand-100 bg-white px-4 py-3 shadow-sm">
               <p className="text-2xl font-bold text-ink-900">
-                {items.reduce((s, i) => s + i.views, 0)}
+                {items.filter((i) => !i.isSold).length}
               </p>
-              <p className="text-xs text-slate-500">Total views</p>
+              <p className="text-xs text-slate-500">Active listings</p>
             </div>
             <div className="rounded-xl border border-brand-100 bg-white px-4 py-3 shadow-sm">
               <p className="text-2xl font-bold text-ink-900">
-                {items.reduce((s, i) => s + i.interestCount, 0)}
+                ₹{items.filter((i) => !i.isSold).reduce((s, i) => s + i.price, 0).toLocaleString("en-IN")}
               </p>
-              <p className="text-xs text-slate-500">Interested</p>
+              <p className="text-xs text-slate-500">Potential revenue</p>
             </div>
           </div>
         </div>

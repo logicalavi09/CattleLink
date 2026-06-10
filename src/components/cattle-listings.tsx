@@ -1,19 +1,25 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { MapPin, Navigation, Loader2, Grid3x3, Map as MapIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { MapPin, Navigation, Loader2, Grid3x3, Map as MapIcon, XCircle } from "lucide-react";
 import type { CattleListing } from "@/models/cattle";
 import { CattleCard } from "./cattle-card";
 import { MapView } from "./map-view";
-import { haversineDistance, formatDistance } from "@/lib/geo";
+import { haversineDistance } from "@/lib/geo";
+import { useLanguage } from "@/lib/language-context";
 
 interface Props {
   listings: CattleListing[];
   query?: string;
   category?: string;
+  usedCategory?: string | null;
+  usedQuery?: string;
 }
 
-export function CattleListings({ listings, query, category }: Props) {
+export function CattleListings({ listings, query, category, usedCategory, usedQuery }: Props) {
+  const router = useRouter();
+  const { t } = useLanguage();
   const [userLocation, setUserLocation] = useState<{
     lat: number;
     lng: number;
@@ -71,6 +77,17 @@ export function CattleListings({ listings, query, category }: Props) {
     setUserLocation(null);
     setLocError(null);
   };
+
+  const displayLabel = () => {
+    if (usedCategory && usedQuery) return `${usedCategory} mein "${usedQuery}" ke liye result`;
+    if (usedCategory) return `${usedCategory} listings`;
+    if (usedQuery) return `"${usedQuery}" ke liye result`;
+    if (query) return `"${query}" ke liye result`;
+    if (category) return `${category.charAt(0).toUpperCase() + category.slice(1)} listings`;
+    return "";
+  };
+
+  const hasActiveFilter = !!(query || category || usedCategory || usedQuery);
 
   return (
     <section id="featured-listings" className="space-y-5">
@@ -133,24 +150,19 @@ export function CattleListings({ listings, query, category }: Props) {
         )}
 
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-earth-600">
-          {query ? "Search results" : "Featured listings"}
+          {hasActiveFilter ? t("listings.search") : t("listings.featured")}
         </p>
         <h2 className="text-2xl font-semibold tracking-tight text-ink-900 sm:text-3xl">
-          {query
-            ? `Results for "${query}"`
-            : category
-              ? `${category.charAt(0).toUpperCase() + category.slice(1)} listings`
-              : "Recent cattle ready to explore"}
+          {displayLabel() || t("listings.recent")}
         </h2>
-        {!query && !category && (
+        {!hasActiveFilter && (
           <p className="max-w-2xl text-sm leading-6 text-slate-700 sm:text-base">
-            These sample cards help shape the first marketplace experience. Replace them with
-            live seller listings once the data layer is ready.
+            {t("listings.description")}
           </p>
         )}
         {userLocation && sortedListings.length > 0 && (
           <p className="text-xs text-slate-500">
-            Sorted by distance &middot; nearest first
+            {t("location.sorted")}
           </p>
         )}
       </div>
@@ -177,11 +189,21 @@ export function CattleListings({ listings, query, category }: Props) {
         <div className="flex flex-col items-center justify-center rounded-3xl border border-brand-100 bg-white px-6 py-16 text-center shadow-sm">
           <MapPin className="h-8 w-8 text-earth-500" />
           <h3 className="mt-4 text-xl font-semibold text-ink-900">
-            No listings found
+            {t("listings.empty")}
           </h3>
           <p className="mt-2 max-w-md text-sm leading-6 text-slate-600">
-            Try a different search or browse categories above.
+            {t("listings.empty_hint")}
           </p>
+          {hasActiveFilter && (
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-brand-600 px-6 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
+            >
+              <XCircle className="h-4 w-4" />
+              Clear Search
+            </button>
+          )}
         </div>
       )}
     </section>

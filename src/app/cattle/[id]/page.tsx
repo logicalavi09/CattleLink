@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
@@ -19,9 +21,30 @@ import {
 import { cattleListings } from "@/constants";
 import { formatPrice } from "@/lib/format";
 import { TrackView } from "@/components/track-view";
+import { ReviewSection } from "@/components/review-section";
+import { InquiryForm } from "@/components/inquiry-form";
 
-function getSellerListingCount(sellerName: string): number {
-  return cattleListings.filter((l) => l.sellerName === sellerName).length;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const listing = cattleListings.find((l) => l.id === id);
+  if (!listing) return {};
+
+  const title = `${listing.breed} - ${formatPrice(listing.price)} | PashuMarket`;
+  const description = `${listing.breed} available at ${listing.location}. ${listing.description?.slice(0, 120) || ""}`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `/cattle/${id}`,
+    },
+  };
 }
 
 export default async function CattleDetailPage({
@@ -36,8 +59,7 @@ export default async function CattleDetailPage({
     notFound();
   }
 
-  const sellerTotal = listing.sellerName ? getSellerListingCount(listing.sellerName) : 0;
-  const isVerifiedSeller = sellerTotal > 3;
+  const isVerifiedSeller = listing.sellerRating ? listing.sellerRating > 4.5 : false;
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://pashumarket.com";
   const shareText = encodeURIComponent(
@@ -62,7 +84,18 @@ export default async function CattleDetailPage({
 
       <div className="overflow-hidden rounded-[2rem] border border-brand-100 bg-white shadow-sm">
         <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-brand-700 via-brand-600 to-earth-500 sm:aspect-[21/9]">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.25),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(255,243,219,0.2),transparent_28%)]" />
+          {listing.thumbnailUrl ? (
+            <Image
+              src={listing.thumbnailUrl}
+              alt={listing.breed}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 80vw"
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.25),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(255,243,219,0.2),transparent_28%)]" />
+          )}
           <div className="absolute inset-x-6 top-6 flex items-center justify-between gap-3">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur">
               <Sprout className="h-3.5 w-3.5" />
@@ -75,11 +108,13 @@ export default async function CattleDetailPage({
               </span>
             )}
           </div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex h-28 w-28 items-center justify-center rounded-full border-2 border-white/30 bg-white/10 text-white backdrop-blur sm:h-32 sm:w-32">
-              <PlayCircleIcon className="h-12 w-12 sm:h-14 sm:w-14" />
+          {!listing.thumbnailUrl && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="flex h-28 w-28 items-center justify-center rounded-full border-2 border-white/30 bg-white/10 text-white backdrop-blur sm:h-32 sm:w-32">
+                <PlayCircleIcon className="h-12 w-12 sm:h-14 sm:w-14" />
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="space-y-8 p-6 sm:p-10">
@@ -222,6 +257,17 @@ export default async function CattleDetailPage({
               <Share2 className="h-4 w-4" />
               Share on WhatsApp
             </a>
+          </div>
+
+          <div className="mt-6">
+            <InquiryForm listingId={listing.id} sellerName={listing.sellerName} />
+          </div>
+
+          <div className="mt-6">
+            <ReviewSection
+              reviews={listing.reviews}
+              sellerRating={listing.sellerRating}
+            />
           </div>
         </div>
       </div>

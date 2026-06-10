@@ -3,8 +3,9 @@
 import { useActionState, useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CldUploadWidget, type CloudinaryUploadWidgetResults } from "next-cloudinary";
-import { Sprout, Upload, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Sprout, Upload, CheckCircle, AlertCircle, Loader2, Sparkles } from "lucide-react";
 import { createCattleListing, getCattleListing } from "@/app/actions/cattle";
+import toast from "react-hot-toast";
 
 const CATTLE_TYPES = ["Cow", "Buffalo", "Goat", "Sheep", "Other"] as const;
 
@@ -15,6 +16,9 @@ function SellForm() {
 
   const [videoUrl, setVideoUrl] = useState("");
   const [videoUploading, setVideoUploading] = useState(false);
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [selectedType, setSelectedType] = useState("");
+  const [selectedBreed, setSelectedBreed] = useState("");
   const [initialData, setInitialData] = useState<{
     name: string; type: string; breed: string;
     price: string; location: string; description: string; videoUrl: string;
@@ -34,11 +38,43 @@ function SellForm() {
           description: data.description || "",
           videoUrl: data.videoUrl || "",
         });
+        setSelectedType(data.type || "");
+        setSelectedBreed(data.breed || "");
         if (data.videoUrl) setVideoUrl(data.videoUrl);
       }
       setLoadingData(false);
     });
   }, [editId]);
+
+  const handleGenerateAi = async () => {
+    if (!selectedType || !selectedBreed) {
+      toast.error("Pehle type aur breed select karein");
+      return;
+    }
+    setAiGenerating(true);
+    try {
+      const res = await fetch("/api/ai/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: selectedType, breed: selectedBreed }),
+      });
+      const data = await res.json();
+      if (data.success && data.description) {
+        setInitialData((prev) => (prev ? { ...prev, description: data.description } : prev));
+        setTimeout(() => {
+          const textarea = document.getElementById("description") as HTMLTextAreaElement;
+          if (textarea) textarea.value = data.description;
+        }, 0);
+        toast.success("AI description generated");
+      } else {
+        toast.error(data.error || "Kuch gadbad hui");
+      }
+    } catch {
+      toast.error("AI generate karne mein problem hui");
+    } finally {
+      setAiGenerating(false);
+    }
+  };
 
   const [state, formAction, isPending] = useActionState(
     async (_prev: { error?: string; success?: boolean } | null, formData: FormData) => {
@@ -51,10 +87,11 @@ function SellForm() {
 
   useEffect(() => {
     if (state?.success) {
+      toast.success(editId ? "Listing updated!" : "Listing published!");
       const timer = setTimeout(() => router.push("/dashboard"), 2000);
       return () => clearTimeout(timer);
     }
-  }, [state?.success, router]);
+  }, [state?.success, editId, router]);
 
   if (loadingData) {
     return (
@@ -123,6 +160,7 @@ function SellForm() {
                     name="type"
                     required
                     defaultValue={initialData?.type ?? ""}
+                    onChange={(e) => setSelectedType(e.target.value)}
                     className="h-12 w-full rounded-2xl border border-brand-100 bg-white px-4 text-sm text-ink-900 shadow-sm outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
                   >
                     <option value="">Select type</option>
@@ -143,6 +181,7 @@ function SellForm() {
                     name="breed"
                     required
                     defaultValue={initialData?.breed ?? ""}
+                    onChange={(e) => setSelectedBreed(e.target.value)}
                     placeholder="e.g. Gir, Murrah"
                     className="h-12 w-full rounded-2xl border border-brand-100 bg-white px-4 text-sm text-ink-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
                   />
@@ -183,9 +222,24 @@ function SellForm() {
               </div>
 
               <div>
-                <label htmlFor="description" className="mb-1.5 block text-sm font-medium text-ink-900">
-                  Description
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="description" className="block text-sm font-medium text-ink-900">
+                    Description
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleGenerateAi}
+                    disabled={aiGenerating || !selectedType || !selectedBreed}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-brand-600 to-earth-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {aiGenerating ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-3.5 w-3.5" />
+                    )}
+                    Generate with AI
+                  </button>
+                </div>
                 <textarea
                   id="description"
                   name="description"

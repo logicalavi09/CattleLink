@@ -3,9 +3,11 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import type { ReactNode } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "react-hot-toast";
 import { SWRegister } from "@/components/sw-register";
 import { InstallBanner } from "@/components/install-banner";
 import { LanguageProvider } from "@/lib/language-context";
+import { PageTransition } from "@/components/page-transition";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -46,7 +48,18 @@ export default function RootLayout({
             <meta name="apple-mobile-web-app-title" content="PashuMarket" />
           </head>
           <body>
-            {children}
+            <PageTransition>{children}</PageTransition>
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                duration: 3000,
+                style: {
+                  borderRadius: "1rem",
+                  fontSize: "0.875rem",
+                  padding: "12px 20px",
+                },
+              }}
+            />
             <SWRegister />
             <InstallBanner />
           </body>
