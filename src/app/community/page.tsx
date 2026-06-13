@@ -43,7 +43,7 @@ const MOCK_POSTS: Post[] = [
     id: "p3",
     author: "Gurpreet Kaur",
     avatar: "GK",
-    content: "Sahiwal cow ka doodh kitna accha hota hai! 5% fat. Pure breed ka fayda. Apne经验 share karein.",
+    content: "Sahiwal cow ka doodh kitna accha hota hai! 5% fat. Pure breed ka fayda. Apne anubhav share karein.",
     likes: 32,
     comments: 6,
     liked: false,
@@ -150,19 +150,31 @@ export default function CommunityPage() {
         </Link>
 
         <div className="mb-6 rounded-2xl border border-brand-100 bg-white p-4 shadow-sm">
-          <textarea
-            value={newPost}
-            onChange={(e) => setNewPost(e.target.value)}
-            placeholder={t("community.share_placeholder")}
-            rows={2}
-            className="w-full resize-none rounded-xl border border-brand-100 bg-white px-4 py-3 text-sm text-ink-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
-          />
-          <div className="mt-3 flex justify-end">
+          <div className="relative">
+            <textarea
+              value={newPost}
+              onChange={(e) => {
+                if (e.target.value.length <= 500) setNewPost(e.target.value);
+              }}
+              placeholder={t("community.share_placeholder")}
+              rows={2}
+              className="w-full resize-none rounded-xl border border-brand-100 bg-white px-4 py-3 pb-8 text-sm text-ink-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:ring-4 focus:ring-brand-100"
+            />
+            <span className="absolute bottom-2 right-3 text-xs text-slate-400">
+              {newPost.length}/500
+            </span>
+          </div>
+          <div className="mt-3 flex items-center justify-between">
+            <p className="text-xs text-slate-400">
+              {newPost.trim().length > 0
+                ? `${newPost.trim().split(/\s+/).filter(Boolean).length} words`
+                : "Apna sawaal ya jaankari likhein"}
+            </p>
             <button
               type="button"
               onClick={handleSharePost}
               disabled={posting || !newPost.trim()}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-5 text-sm font-semibold text-white shadow-sm transition-all hover:shadow-md hover:from-brand-700 hover:to-brand-800 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {posting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

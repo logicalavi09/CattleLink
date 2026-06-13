@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState, useTransition, useCallback } from "react";
-import { LayoutDashboard, Menu, Search, Sprout, X, Languages, Mic, MessageCircle } from "lucide-react";
+import { LayoutDashboard, Search, Sprout, X, Languages, Mic, MessageCircle, PlusCircle } from "lucide-react";
 import { Show, UserButton, SignInButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -67,6 +67,7 @@ function SearchInner() {
       } else {
         params.delete("query");
       }
+      params.delete("category");
       const qs = params.toString();
       startTransition(() => {
         router.replace(qs ? `/?${qs}` : "/");
@@ -207,7 +208,7 @@ function LangSwitcher() {
     <button
       type="button"
       onClick={() => setLang(lang === "en" ? "hi" : "en")}
-      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-brand-100 bg-white text-brand-700 shadow-sm transition hover:bg-brand-50"
+      className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-brand-100 bg-white text-brand-700 shadow-sm transition hover:bg-brand-50 active:scale-95"
       title={t(`lang.${lang === "en" ? "hi" : "en"}`)}
     >
       <Languages className="h-4 w-4" />
@@ -219,37 +220,30 @@ export function Navbar() {
   const { t } = useLanguage();
 
   return (
-    <header className="sticky top-0 z-40 -mx-4 border-b border-brand-100/80 bg-white/90 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
-        <div className="flex items-center justify-between gap-3">
-          <Link href="/" className="flex items-center gap-2 font-semibold text-ink-900">
+    <header className="sticky top-0 z-40 w-full border-b border-brand-100/80 bg-white/90 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-3">
+          <Link href="/" className="flex shrink-0 items-center gap-2 font-semibold text-ink-900">
             <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-sm shadow-brand-600/25">
               <Sprout className="h-5 w-5" />
             </span>
             <span className="text-lg tracking-tight sm:text-xl">{t("app.name")}</span>
           </Link>
 
-          <button
-            type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-100 bg-brand-50 text-brand-700 shadow-sm lg:hidden"
-            aria-label="Open navigation menu"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-        </div>
+          <div className="hidden sm:flex flex-1 items-center">
+            <Suspense fallback={<SearchFallback />}>
+              <SearchInner />
+            </Suspense>
+          </div>
 
-        <div className="flex flex-1 flex-col gap-3 lg:flex-row lg:items-center">
-          <Suspense fallback={<SearchFallback />}>
-            <SearchInner />
-          </Suspense>
-
-          <div className="flex items-center gap-3 lg:justify-end">
+          <div className="flex items-center gap-2 sm:gap-3 ml-auto sm:ml-0">
             <Link
               href="/community"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-brand-100 bg-white px-3 text-sm font-semibold text-brand-700 shadow-sm transition hover:bg-brand-50"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-brand-100 bg-white text-brand-700 shadow-sm transition hover:bg-brand-50 active:scale-95 sm:w-auto sm:px-3 sm:gap-2"
+              title={t("nav.community")}
             >
               <MessageCircle className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("nav.community")}</span>
+              <span className="hidden sm:inline text-sm font-semibold">{t("nav.community")}</span>
             </Link>
 
             <LangSwitcher />
@@ -258,9 +252,10 @@ export function Navbar() {
               <SignInButton mode="modal" forceRedirectUrl="/sell">
                 <button
                   type="button"
-                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-brand-600 px-5 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 cursor-pointer"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white shadow-sm shadow-brand-600/20 transition hover:bg-brand-700 active:scale-95 cursor-pointer"
                 >
-                  {t("nav.sell")}
+                  <PlusCircle className="h-4 w-4 sm:hidden" />
+                  <span className="hidden sm:inline">{t("nav.sell")}</span>
                 </button>
               </SignInButton>
             </Show>
@@ -268,22 +263,30 @@ export function Navbar() {
             <Show when="signed-in">
               <Link
                 href="/dashboard"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-brand-200 bg-white px-4 text-sm font-semibold text-brand-700 shadow-sm transition hover:bg-brand-50"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-brand-200 bg-white text-brand-700 shadow-sm transition hover:bg-brand-50 active:scale-95 sm:w-auto sm:px-3 sm:gap-2"
+                title={t("nav.dashboard")}
               >
                 <LayoutDashboard className="h-4 w-4" />
-                <span className="hidden sm:inline">{t("nav.dashboard")}</span>
+                <span className="hidden sm:inline text-sm font-semibold">{t("nav.dashboard")}</span>
               </Link>
               <Link
                 href="/sell"
-                className="inline-flex h-12 items-center justify-center rounded-2xl bg-brand-600 px-5 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
+                className="inline-flex h-10 items-center justify-center rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white shadow-sm shadow-brand-600/20 transition hover:bg-brand-700 active:scale-95"
               >
-                {t("nav.sell")}
+                <PlusCircle className="h-4 w-4 sm:hidden" />
+                <span className="hidden sm:inline">{t("nav.sell")}</span>
               </Link>
               <div className="flex items-center justify-center">
                 <UserButton />
               </div>
             </Show>
           </div>
+        </div>
+
+        <div className="sm:hidden flex-1">
+          <Suspense fallback={<SearchFallback />}>
+            <SearchInner />
+          </Suspense>
         </div>
       </div>
     </header>
