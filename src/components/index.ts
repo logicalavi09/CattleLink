@@ -10,5 +10,6 @@ export * from "./track-view";
 export * from "./reels-feed";
 export * from "./review-section";
 export * from "./inquiry-form";
+export * from "./inquiry-history";
 export * from "./home-skeleton";
 export * from "./reels-skeleton";

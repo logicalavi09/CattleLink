@@ -30,6 +30,18 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Skip caching for POST/PUT/DELETE requests to avoid 503 errors
+  if (request.method !== "GET") {
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  // Skip caching for API routes
+  if (url.pathname.startsWith("/api/")) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
   if (url.pathname.startsWith("/icons/") || url.pathname === "/manifest.json") {
     event.respondWith(
       caches.match(request).then((cached) => cached || fetch(request)),

@@ -22,7 +22,9 @@ import { cattleListings } from "@/constants";
 import { formatPrice } from "@/lib/format";
 import { TrackView } from "@/components/track-view";
 import { ReviewSection } from "@/components/review-section";
-import { InquiryForm } from "@/components/inquiry-form";
+import { InquiryForm, ReportButton } from "@/components/inquiry-form";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://pashumarket.com";
 
 export async function generateMetadata({
   params,
@@ -35,6 +37,7 @@ export async function generateMetadata({
 
   const title = `${listing.breed} - ${formatPrice(listing.price)} | PashuMarket`;
   const description = `${listing.breed} available at ${listing.location}. ${listing.description?.slice(0, 120) || ""}`;
+  const ogImage = listing.thumbnailUrl || `${siteUrl}/icons/icon-512.svg`;
 
   return {
     title,
@@ -43,6 +46,13 @@ export async function generateMetadata({
       title,
       description,
       url: `/cattle/${id}`,
+      images: [{ url: ogImage, width: 800, height: 600, alt: listing.breed }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
     },
   };
 }
@@ -259,8 +269,18 @@ export default async function CattleDetailPage({
             </a>
           </div>
 
-          <div className="mt-6">
-            <InquiryForm listingId={listing.id} sellerName={listing.sellerName} />
+          <div className="mt-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-ink-900">Interested in this animal?</p>
+              <ReportButton listingId={listing.id} />
+            </div>
+            <InquiryForm
+              listingId={listing.id}
+              sellerName={listing.sellerName}
+              sellerId={listing.sellerId}
+              cattleName={listing.title}
+              cattleBreed={listing.breed}
+            />
           </div>
 
           <div className="mt-6">

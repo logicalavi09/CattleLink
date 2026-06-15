@@ -27,6 +27,7 @@ export interface CattleListing {
   mediaLabel: string;
   statusLabel: string;
   featured: boolean;
+  sellerId?: string;
   sellerName?: string;
   sellerRating?: number;
   description?: string;

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, Navigation, Loader2, Grid3x3, Map as MapIcon, XCircle } from "lucide-react";
+import { MapPin, Loader2, Grid3x3, Map as MapIcon, XCircle, Crosshair } from "lucide-react";
 import type { CattleListing } from "@/models/cattle";
 import { CattleCard } from "./cattle-card";
 import { MapView } from "./map-view";
@@ -27,6 +27,7 @@ export function CattleListings({ listings, query, category, usedCategory, usedQu
   const [locLoading, setLocLoading] = useState(false);
   const [locError, setLocError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
+  const [geoSortEnabled, setGeoSortEnabled] = useState(false);
 
   const listingsWithDistance = useMemo(() => {
     if (!userLocation) return listings.map((l) => ({ ...l, distance: null as number | null }));
@@ -63,6 +64,7 @@ export function CattleListings({ listings, query, category, usedCategory, usedQu
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
         });
+        setGeoSortEnabled(true);
         setLocLoading(false);
       },
       (err) => {
@@ -76,6 +78,15 @@ export function CattleListings({ listings, query, category, usedCategory, usedQu
   const handleClearLocation = () => {
     setUserLocation(null);
     setLocError(null);
+    setGeoSortEnabled(false);
+  };
+
+  const handleToggleGeoSort = () => {
+    if (geoSortEnabled) {
+      handleClearLocation();
+    } else {
+      handleUseLocation();
+    }
   };
 
   const displayLabel = () => {
@@ -93,31 +104,28 @@ export function CattleListings({ listings, query, category, usedCategory, usedQu
     <section id="featured-listings" className="space-y-5">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          {userLocation ? (
-            <button
-              type="button"
-              onClick={handleClearLocation}
-              className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 transition hover:bg-brand-100"
-            >
-              <Navigation className="h-3 w-3" />
-              Location set
-            </button>
-          ) : (
-            <div />
-          )}
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={handleUseLocation}
+              onClick={handleToggleGeoSort}
               disabled={locLoading}
-              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-brand-200 bg-white px-3 text-sm font-medium text-brand-700 shadow-sm transition hover:bg-brand-50 disabled:opacity-50"
+              className={`inline-flex h-9 items-center gap-1.5 rounded-xl border px-3 text-sm font-medium shadow-sm transition disabled:opacity-50 ${
+                geoSortEnabled
+                  ? "border-brand-500 bg-brand-100 text-brand-700 ring-2 ring-brand-200"
+                  : "border-brand-200 bg-white text-brand-700 hover:bg-brand-50"
+              }`}
             >
               {locLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Navigation className="h-4 w-4" />
+                <Crosshair className={`h-4 w-4 ${geoSortEnabled ? "animate-pulse" : ""}`} />
               )}
-              Use My Location
+              <span className="hidden sm:inline">
+                {geoSortEnabled ? "Paas Ke Janwar" : "Janwar Jo Mere Paas Hain"}
+              </span>
+              <span className="sm:hidden">
+                {geoSortEnabled ? "Paas Ke" : "Paas Hain"}
+              </span>
             </button>
             <div className="flex overflow-hidden rounded-xl border border-slate-200">
               <button
