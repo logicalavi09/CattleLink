@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const rawUri = process.env.MONGODB_URI;
+const MONGODB_URI = rawUri?.trim();
 
 if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
+  throw new Error("Error: MONGODB_URI is not defined in environment variables. Check your .env.local file.");
 }
 
 interface MongooseGlobal {
@@ -23,6 +24,8 @@ if (!cached) {
 }
 
 export async function connectDB() {
+  console.log("Connecting to:", process.env.MONGODB_URI ? "URI found" : "URI MISSING");
+
   if (cached.conn) {
     return cached.conn;
   }
@@ -45,4 +48,15 @@ export async function connectDB() {
   }
 
   return cached.conn;
+}
+
+export function getConnectionError(): string | null {
+  try {
+    if (!process.env.MONGODB_URI?.trim()) {
+      return "Database connection string is missing. Please check your .env.local file.";
+    }
+    return null;
+  } catch {
+    return "Failed to read database configuration.";
+  }
 }

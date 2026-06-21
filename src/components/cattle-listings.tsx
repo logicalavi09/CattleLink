@@ -11,13 +11,14 @@ import { useLanguage } from "@/lib/language-context";
 
 interface Props {
   listings: CattleListing[];
+  allListings?: CattleListing[];
   query?: string;
   category?: string;
   usedCategory?: string | null;
   usedQuery?: string;
 }
 
-export function CattleListings({ listings, query, category, usedCategory, usedQuery }: Props) {
+export function CattleListings({ listings, allListings, query, category, usedCategory, usedQuery }: Props) {
   const router = useRouter();
   const { t } = useLanguage();
   const [userLocation, setUserLocation] = useState<{
@@ -194,23 +195,46 @@ export function CattleListings({ listings, query, category, usedCategory, usedQu
           />
         )
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-brand-100 bg-white px-6 py-16 text-center shadow-sm">
-          <MapPin className="h-8 w-8 text-earth-500" />
-          <h3 className="mt-4 text-xl font-semibold text-ink-900">
-            {t("listings.empty")}
-          </h3>
-          <p className="mt-2 max-w-md text-sm leading-6 text-slate-600">
-            {t("listings.empty_hint")}
-          </p>
-          {hasActiveFilter && (
-            <button
-              type="button"
-              onClick={() => router.push("/")}
-              className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-brand-600 px-6 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
-            >
-              <XCircle className="h-4 w-4" />
-              Clear Search
-            </button>
+        <div className="space-y-10">
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-brand-100 bg-white px-6 py-16 text-center shadow-sm">
+            <MapPin className="h-8 w-8 text-earth-500" />
+            <h3 className="mt-4 text-xl font-semibold text-ink-900">
+              {t("listings.empty")}
+            </h3>
+            <p className="mt-2 max-w-md text-sm leading-6 text-slate-600">
+              {t("listings.empty_hint")}
+            </p>
+            {hasActiveFilter && (
+              <button
+                type="button"
+                onClick={() => router.push("/")}
+                className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand-600 px-8 text-base font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 hover:shadow-xl"
+              >
+                <XCircle className="h-5 w-5" />
+                Clear Search
+              </button>
+            )}
+          </div>
+
+          {allListings && allListings.length > 0 && (
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-xl font-semibold text-ink-900">
+                  {t("listings.recommended") || "Recommended Cattle"}
+                </h3>
+                <p className="mt-1 text-sm text-slate-600">
+                  {t("listings.recommended_hint") || "You might also be interested in these listings"}
+                </p>
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                {allListings.slice(0, 3).map((listing) => (
+                  <CattleCard
+                    key={listing.id}
+                    listing={listing}
+                  />
+                ))}
+              </div>
+            </div>
           )}
         </div>
       )}

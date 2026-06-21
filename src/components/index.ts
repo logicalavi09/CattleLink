@@ -13,3 +13,4 @@ export * from "./inquiry-form";
 export * from "./inquiry-history";
 export * from "./home-skeleton";
 export * from "./reels-skeleton";
+export * from "./image-with-fallback";

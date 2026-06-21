@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
@@ -23,6 +22,7 @@ import { formatPrice } from "@/lib/format";
 import { TrackView } from "@/components/track-view";
 import { ReviewSection } from "@/components/review-section";
 import { InquiryForm, ReportButton } from "@/components/inquiry-form";
+import { ImageWithFallback } from "@/components/image-with-fallback";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://pashumarket.com";
 
@@ -95,7 +95,7 @@ export default async function CattleDetailPage({
       <div className="overflow-hidden rounded-[2rem] border border-brand-100 bg-white shadow-sm">
         <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-brand-700 via-brand-600 to-earth-500 sm:aspect-[21/9]">
           {listing.thumbnailUrl ? (
-            <Image
+            <ImageWithFallback
               src={listing.thumbnailUrl}
               alt={listing.breed}
               fill

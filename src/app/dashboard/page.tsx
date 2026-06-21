@@ -48,6 +48,8 @@ export default async function DashboardPage() {
   }
 
   const totalListings = listings.length;
+  const totalViews = listings.reduce((s, i) => s + i.views, 0);
+  const totalInquiries = listings.reduce((s, i) => s + i.interestCount, 0);
   const isVerified = totalListings > 3;
 
   return (
@@ -102,6 +104,14 @@ export default async function DashboardPage() {
                 ₹{listings.filter((i) => !i.isSold).reduce((s, i) => s + i.price, 0).toLocaleString("en-IN")}
               </p>
               <p className="text-xs text-slate-500">Potential revenue</p>
+            </div>
+            <div className="rounded-xl border border-brand-100 bg-white px-4 py-3 shadow-sm">
+              <p className="text-2xl font-bold text-ink-900">{totalViews.toLocaleString("en-IN")}</p>
+              <p className="text-xs text-slate-500">Total views</p>
+            </div>
+            <div className="rounded-xl border border-brand-100 bg-white px-4 py-3 shadow-sm">
+              <p className="text-2xl font-bold text-ink-900">{totalInquiries.toLocaleString("en-IN")}</p>
+              <p className="text-xs text-slate-500">Total inquiries</p>
             </div>
           </div>
         </div>

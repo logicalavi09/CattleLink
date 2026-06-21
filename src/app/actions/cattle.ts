@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { connectDB } from "@/lib/db";
+import { connectDB, getConnectionError } from "@/lib/db";
 import { Cattle } from "@/models/cattle";
 import { revalidatePath } from "next/cache";
 
@@ -25,6 +25,11 @@ export async function createCattleListing(formData: FormData) {
   }
 
   try {
+    const dbError = getConnectionError();
+    if (dbError) {
+      return { error: dbError };
+    }
+
     await connectDB();
 
     const data = {

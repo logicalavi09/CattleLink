@@ -39,7 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={inter.variable}>
+      <html lang="en" className={inter.variable} data-scroll-behavior="smooth">
         <LanguageProvider>
           <head>
             <meta name="theme-color" content="#276224" />

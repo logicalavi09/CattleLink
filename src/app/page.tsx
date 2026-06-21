@@ -106,6 +106,7 @@ export default async function Home({
 
         <CattleListings
           listings={filtered}
+          allListings={cattleListings}
           query={query}
           category={category}
           usedCategory={usedCategory}

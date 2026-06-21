@@ -1,10 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
 import { MapPin, Navigation, PlayCircle, ShieldCheck, ArrowRight, IndianRupee } from "lucide-react";
 
 import { formatPrice } from "@/lib/format";
 import type { CattleListing } from "@/models/cattle";
 import { formatDistance } from "@/lib/geo";
+import { ImageWithFallback } from "./image-with-fallback";
 
 interface Props {
   listing: CattleListing;
@@ -17,7 +17,7 @@ export function CattleCard({ listing, distance }: Props) {
       <article className="group overflow-hidden rounded-[1.75rem] border border-brand-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-brand-900/10">
         <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-brand-700 via-brand-600 to-earth-500">
           {listing.thumbnailUrl ? (
-            <Image
+            <ImageWithFallback
               src={listing.thumbnailUrl}
               alt={listing.breed}
               fill
