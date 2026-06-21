@@ -178,7 +178,7 @@ export function CattleListings({ listings, allListings, query, category, usedCat
 
       {sortedListings.length > 0 ? (
         viewMode === "grid" ? (
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
             {sortedListings.map((listing) => (
               <CattleCard
                 key={listing.id}
@@ -226,7 +226,7 @@ export function CattleListings({ listings, allListings, query, category, usedCat
                   {t("listings.recommended_hint") || "You might also be interested in these listings"}
                 </p>
               </div>
-              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
                 {allListings.slice(0, 3).map((listing) => (
                   <CattleCard
                     key={listing.id}

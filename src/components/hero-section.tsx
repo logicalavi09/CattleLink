@@ -13,7 +13,7 @@ export function HeroSection() {
         </div>
 
         <div className="space-y-4">
-          <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-ink-900 sm:text-5xl lg:text-6xl">
+          <h1 className="max-w-2xl text-2xl font-semibold tracking-tight text-ink-900 sm:text-4xl lg:text-5xl">
             Bharat ka Sabse Trusted Pashu Mandi
           </h1>
           <p className="max-w-xl text-base leading-7 text-slate-700 sm:text-lg">
@@ -21,17 +21,17 @@ export function HeroSection() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col gap-4 sm:flex-row">
           <a
             href="#featured-listings"
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand-600 px-5 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 px-5 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition hover:bg-brand-700 sm:w-auto"
           >
             Explore cattle
             <ArrowRight className="h-4 w-4" />
           </a>
           <Link
             href="/reels"
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-earth-200 bg-earth-50 px-5 text-sm font-semibold text-earth-600 transition hover:border-earth-300 hover:bg-earth-100"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-earth-200 bg-earth-50 px-5 text-sm font-semibold text-earth-600 transition hover:border-earth-300 hover:bg-earth-100 sm:w-auto"
           >
             Watch reel-style listings
             <PlayCircle className="h-4 w-4" />

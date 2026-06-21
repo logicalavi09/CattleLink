@@ -1,12 +1,16 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState, useTransition, useCallback } from "react";
-import { LayoutDashboard, Search, Sprout, X, Languages, Mic, MessageCircle, PlusCircle } from "lucide-react";
+import {
+  LayoutDashboard, Search, Sprout, X, Languages, Mic, MessageCircle,
+  PlusCircle, Menu, User, Home,
+} from "lucide-react";
 import { Show, UserButton, SignInButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/lib/language-context";
 import toast from "react-hot-toast";
+import { AnimatePresence, motion } from "framer-motion";
 
 const FILLER_WORDS = new Set([
   "khoj", "do", "dikhao", "dikhaye", "dikha", "ke", "hain", "hai", "ho",
@@ -218,11 +222,23 @@ function LangSwitcher() {
 
 export function Navbar() {
   const { t } = useLanguage();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    if (drawerOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [drawerOpen]);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-brand-100/80 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3">
+    <>
+      <header className="sticky top-0 z-40 w-full border-b border-brand-100/80 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <Link href="/" className="flex shrink-0 items-center gap-2 font-semibold text-ink-900">
             <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-sm shadow-brand-600/25">
               <Sprout className="h-5 w-5" />
@@ -230,13 +246,13 @@ export function Navbar() {
             <span className="text-lg tracking-tight sm:text-xl">{t("app.name")}</span>
           </Link>
 
-          <div className="hidden sm:flex flex-1 items-center">
+          <div className="hidden sm:flex flex-1 items-center mx-6">
             <Suspense fallback={<SearchFallback />}>
               <SearchInner />
             </Suspense>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 ml-auto sm:ml-0">
+          <div className="hidden sm:flex items-center gap-2">
             <Link
               href="/community"
               className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-brand-100 bg-white text-brand-700 shadow-sm transition hover:bg-brand-50 active:scale-95 sm:w-auto sm:px-3 sm:gap-2"
@@ -281,14 +297,132 @@ export function Navbar() {
               </div>
             </Show>
           </div>
-        </div>
 
-        <div className="sm:hidden flex-1">
-          <Suspense fallback={<SearchFallback />}>
-            <SearchInner />
-          </Suspense>
+          <div className="flex sm:hidden items-center gap-2">
+            <Show when="signed-in">
+              <div className="scale-90">
+                <UserButton />
+              </div>
+            </Show>
+            <Show when="signed-out">
+              <SignInButton mode="modal">
+                <button
+                  type="button"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white shadow-sm"
+                  aria-label="Sign in"
+                >
+                  <User className="h-4 w-4" />
+                </button>
+              </SignInButton>
+            </Show>
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-brand-100 bg-white text-brand-700 shadow-sm transition hover:bg-brand-50"
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
         </div>
+      </header>
+
+      {/* Mobile search bar - full width below navbar */}
+      <div className="sm:hidden border-b border-brand-100/80 bg-white px-4 py-2">
+        <Suspense fallback={<SearchFallback />}>
+          <SearchInner />
+        </Suspense>
       </div>
-    </header>
+
+      {/* Mobile Drawer */}
+      <AnimatePresence>
+        {drawerOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50 bg-black/40"
+              onClick={() => setDrawerOpen(false)}
+            />
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 300 }}
+              className="fixed right-0 top-0 z-50 h-full w-72 bg-white shadow-xl"
+            >
+              <div className="flex items-center justify-between border-b border-brand-100 px-5 py-4">
+                <span className="text-lg font-semibold text-ink-900">Menu</span>
+                <button
+                  type="button"
+                  onClick={() => setDrawerOpen(false)}
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-700 transition hover:bg-brand-100"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex flex-col gap-1 p-5">
+                <Link
+                  href="/"
+                  onClick={() => setDrawerOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-brand-50"
+                >
+                  <Home className="h-5 w-5 text-brand-600" />
+                  Home
+                </Link>
+                <Link
+                  href="/community"
+                  onClick={() => setDrawerOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-brand-50"
+                >
+                  <MessageCircle className="h-5 w-5 text-brand-600" />
+                  {t("nav.community")}
+                </Link>
+                <Show when="signed-in">
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setDrawerOpen(false)}
+                    className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-brand-50"
+                  >
+                    <LayoutDashboard className="h-5 w-5 text-brand-600" />
+                    {t("nav.dashboard")}
+                  </Link>
+                </Show>
+                <hr className="my-2 border-brand-100" />
+                <div className="flex items-center justify-between rounded-xl px-4 py-3">
+                  <span className="text-sm font-medium text-slate-600">Language / भाषा</span>
+                  <LangSwitcher />
+                </div>
+                <hr className="my-2 border-brand-100" />
+                <Show when="signed-out">
+                  <SignInButton mode="modal" forceRedirectUrl="/sell">
+                    <button
+                      type="button"
+                      onClick={() => setDrawerOpen(false)}
+                      className="flex w-full items-center justify-center gap-3 rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-700"
+                    >
+                      <PlusCircle className="h-5 w-5" />
+                      {t("nav.sell")}
+                    </button>
+                  </SignInButton>
+                </Show>
+                <Show when="signed-in">
+                  <Link
+                    href="/sell"
+                    onClick={() => setDrawerOpen(false)}
+                    className="flex items-center justify-center gap-3 rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-700"
+                  >
+                    <PlusCircle className="h-5 w-5" />
+                    {t("nav.sell")}
+                  </Link>
+                </Show>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

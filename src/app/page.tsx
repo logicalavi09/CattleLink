@@ -85,7 +85,7 @@ export default async function Home({
   const { listings: filtered, usedCategory, usedQuery } = filterListings(cattleListings, category, query);
 
   return (
-    <main className="mx-auto min-h-screen max-w-7xl px-4 pb-16 pt-3 sm:px-6 lg:px-8">
+    <main className="mx-auto min-h-screen max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
       <Navbar />
       <div className="space-y-14 pb-6 pt-6 sm:space-y-16 lg:pt-8">
         {!category && !query && <HeroSection />}

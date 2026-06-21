@@ -197,7 +197,7 @@ function ReelCard({
           </div>
 
           {/* Right: Action icons vertical column */}
-          <div className="flex flex-col items-center gap-5 shrink-0">
+          <div className="flex flex-col items-center gap-6 shrink-0 pr-1">
             <motion.button
               type="button"
               onClick={() => setLiked((l) => !l)}
@@ -208,7 +208,7 @@ function ReelCard({
               <motion.span
                 animate={liked ? { scale: [1, 1.3, 1] } : { scale: 1 }}
                 transition={{ duration: 0.3 }}
-                className={`flex h-12 w-12 items-center justify-center rounded-full backdrop-blur-md ${
+                className={`flex h-14 w-14 items-center justify-center rounded-full backdrop-blur-md ${
                   liked
                     ? "bg-brand-500 text-white shadow-lg shadow-brand-500/40"
                     : "bg-white/10 text-white"
@@ -225,7 +225,7 @@ function ReelCard({
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               className="flex flex-col items-center gap-1"
             >
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md">
                 <Phone className="h-5 w-5" />
               </span>
               <span className="text-[10px] font-medium text-white/60">Call</span>
@@ -239,7 +239,7 @@ function ReelCard({
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               className="flex flex-col items-center gap-1"
             >
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md">
                 <MessageCircle className="h-5 w-5" />
               </span>
               <span className="text-[10px] font-medium text-white/60">WhatsApp</span>
@@ -302,7 +302,7 @@ export function ReelsFeed({
   return (
     <div
       ref={containerRef}
-      className="h-screen w-full snap-y snap-mandatory overflow-y-scroll scrollbar-hide bg-black"
+      className="h-screen w-full snap-y snap-mandatory overflow-y-scroll overflow-x-hidden scrollbar-hide bg-black"
     >
       {listings.map((listing, i) => (
         <ReelCard

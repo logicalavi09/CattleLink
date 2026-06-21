@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import type { ReactNode } from "react";
@@ -8,6 +8,7 @@ import { SWRegister } from "@/components/sw-register";
 import { InstallBanner } from "@/components/install-banner";
 import { LanguageProvider } from "@/lib/language-context";
 import { PageTransition } from "@/components/page-transition";
+import { FAB } from "@/components/fab";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -32,6 +33,13 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: "#276224",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -42,13 +50,13 @@ export default function RootLayout({
       <html lang="en" className={inter.variable} data-scroll-behavior="smooth">
         <LanguageProvider>
           <head>
-            <meta name="theme-color" content="#276224" />
             <meta name="apple-mobile-web-app-capable" content="yes" />
             <meta name="apple-mobile-web-app-status-bar-style" content="default" />
             <meta name="apple-mobile-web-app-title" content="PashuMarket" />
           </head>
           <body>
             <PageTransition>{children}</PageTransition>
+            <FAB />
             <Toaster
               position="top-center"
               toastOptions={{
